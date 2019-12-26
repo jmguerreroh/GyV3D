@@ -10,4 +10,4 @@ This is a project made by [José Miguel Guerrero], Assistant Professor at [Unive
 [Universidad Rey Juan Carlos]: https://www.urjc.es/
 [José Miguel Guerrero]: https://sites.google.com/view/jmguerrero
 [Logo]: http://bonigarcia.github.io/img/webgl.png
-[Boni Garcia]: https://github.com/bonigarcia/web-programming-examples
+[Boni Garcia]: https://github.com/bonigarcia/webgl-examples
