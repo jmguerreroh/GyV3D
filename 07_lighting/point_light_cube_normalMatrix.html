@@ -2,28 +2,36 @@
 <html>
 
 <head>
-<title>Lighting: cube lit by ambient light</title>
+<title>Lighting: cube lit by point light with normal matrix</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
 
 <script id="shaderVs" type="x-shader/x-vertex">
-    attribute vec4 a_Position;
     attribute vec3 a_Color;
+    attribute vec3 a_Normal;
+    attribute vec4 a_Position;
 
+    uniform vec3 u_LightColor;
+    uniform vec3 u_lightPosition;
     uniform vec3 u_AmbientLight;
 
     uniform mat4 u_pMatrix;
     uniform mat4 u_vMatrix;
     uniform mat4 u_mvMatrix;
-	
+    uniform mat4 u_NormalMatrix;
+
     varying highp vec4 v_Color;
 
     void main(void) {
-        vec4 vertexPosition = u_mvMatrix * a_Position;
-        gl_Position = u_pMatrix * u_vMatrix * vertexPosition;
+        gl_Position = u_pMatrix * u_vMatrix * u_mvMatrix * a_Position;
 
-        vec3 ambient = u_AmbientLight * a_Color;
-        v_Color = vec4(ambient, 1.0);
+        vec3 lightDirection = normalize(u_lightPosition - vec3(gl_Position));
+        vec4 transformedNormal = u_NormalMatrix * vec4(a_Normal, 1.0);
+        float nDotL = max(dot(lightDirection, normalize(transformedNormal.xyz)), 0.0);
+
+        vec3 diffuse = u_LightColor * a_Color.rgb * nDotL;
+        vec3 ambient = u_AmbientLight * a_Color.rgb;
+        v_Color = vec4(diffuse + ambient, 1.0);
     }
 </script>
 
@@ -79,6 +87,14 @@
       var uMvMatrix = gl.getUniformLocation(gl.program, "u_mvMatrix");
       gl.uniformMatrix4fv(uMvMatrix, false, mvMatrix);
 
+      
+      // Get the normal direction using the model Matrix
+      var normalMatrix = mat4.clone(mvMatrix);
+      var normalMatrixInvert = mat4.invert(mat4.create(), normalMatrix);
+      var normalMatrixInvertTranspose = mat4.invert(mat4.create(), normalMatrixInvert);
+      var normalUniformMatrix = gl.getUniformLocation(gl.program, "u_NormalMatrix");
+      gl.uniformMatrix4fv(normalUniformMatrix, false, normalMatrixInvertTranspose);
+
       // Draw
       gl.drawElements(gl.TRIANGLES, 6 * 2 * 3, gl.UNSIGNED_BYTE, 0);
 
@@ -108,18 +124,26 @@
 
       var colors = new Float32Array([ // Colors
       1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, // v0-v1-v2-v3 front
-      0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, // v0-v3-v4-v5 right
-      0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, // v0-v5-v6-v1 up
-      1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, // v1-v6-v7-v2 left
-      0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, // v7-v4-v3-v2 down
-      1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1 // v4-v7-v6-v5 back
+      1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, // v0-v3-v4-v5 right
+      1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, // v0-v5-v6-v1 up
+      1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, // v1-v6-v7-v2 left
+      1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, // v7-v4-v3-v2 down
+      1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0 // v4-v7-v6-v5 back
+      ]);
+
+      var normals = new Float32Array([ // Normal
+      0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, // v0-v1-v2-v3 front
+      1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, // v0-v3-v4-v5 right
+      0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, // v0-v5-v6-v1 up
+      -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, // v1-v6-v7-v2 left
+      0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, // v7-v4-v3-v2 down
+      0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0 // v4-v7-v6-v5 back
       ]);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
       gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-      var vertexPositionAttribute = gl.getAttribLocation(gl.program,
-            "a_Position");
+      var vertexPositionAttribute = gl.getAttribLocation(gl.program, "a_Position");
       gl.enableVertexAttribArray(vertexPositionAttribute);
       gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
@@ -129,6 +153,13 @@
       var vertexColorAttribute = gl.getAttribLocation(gl.program, "a_Color");
       gl.enableVertexAttribArray(vertexColorAttribute);
       gl.vertexAttribPointer(vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+      gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+
+      var vertexNormalAttribute = gl.getAttribLocation(gl.program, "a_Normal");
+      gl.enableVertexAttribArray(vertexNormalAttribute);
+      gl.vertexAttribPointer(vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
 
       // Indices of the vertices
       var indices = new Uint8Array([ 0, 1, 2, 0, 2, 3, // front
@@ -141,6 +172,7 @@
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+
    }
 
    function initProjection(gl, canvas) {
@@ -154,6 +186,20 @@
       var vMatrix = mat4.lookAt(mat4.create(), [ 0, 0, 3 ], [ 0, 0, 0 ], [ 0, 1, 0 ]);
       var vMatrixUniform = gl.getUniformLocation(gl.program, "u_vMatrix");
       gl.uniformMatrix4fv(vMatrixUniform, false, vMatrix);
+
+      // Write u_LightColor
+      var lightColor = [ 1.0, 1.0, 1.0 ]; // white
+      var lightColorUniform = gl.getUniformLocation(gl.program, "u_LightColor");
+      gl.uniform3fv(lightColorUniform, lightColor);
+
+      // Write u_LightPosition
+      var x = document.getElementById("x").value;
+      var y = document.getElementById("y").value;
+      var z = document.getElementById("z").value;
+ 
+      var lightPosition = [ x, y, z ];
+      var lightPositionUniform = gl.getUniformLocation(gl.program, "u_lightPosition");
+      gl.uniform3fv(lightPositionUniform, lightPosition);
 
       // Write u_AmbientLight
       var r = document.getElementById("r").value;
@@ -197,12 +243,17 @@
 </head>
 
 <body onload="init()">
-    <canvas id="myCanvas" width="640" height="480"></canvas><br>
+   <canvas id="myCanvas" width="640" height="480"></canvas><br>
 
-    <b>Light color</b><br>
-    <input type="range" id="r" min="0" max="1" value="0.5" step="0.01">R<br>
-    <input type="range" id="g" min="0" max="1" value="0.5" step="0.01">G<br>
-    <input type="range" id="b" min="0" max="1" value="0.5" step="0.01">B<br>
+   <b>Light color</b><br>
+   <input type="range" id="r" min="0" max="1" value="0.2" step="0.01">R<br>
+   <input type="range" id="g" min="0" max="1" value="0.2" step="0.01">G<br>
+   <input type="range" id="b" min="0" max="1" value="0.2" step="0.01">B<br>
+
+   <b>Light position</b><br>
+   <input type="range" id="x" min="-20" max="20" value="2" step="1">X<br>
+   <input type="range" id="y" min="-20" max="20" value="8" step="1">Y<br>
+   <input type="range" id="z" min="-20" max="20" value="8" step="1">Z<br>
 </body>
 
 </html>
