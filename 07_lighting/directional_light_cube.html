@@ -22,7 +22,7 @@
     void main(void) {
         gl_Position = u_pMatrix * u_vMatrix * u_mvMatrix * a_Position;
 
-        vec3 normal = normalize(a_Normal);
+        vec3 normal = normalize(a_Normal - vec3(gl_Position));
         float nDotL = max(dot(u_LightDirection, normal), 0.0);
 
         vec3 diffuse = u_LightColor * a_Color.rgb * nDotL;
@@ -164,12 +164,12 @@
    function initProjection(gl, canvas) {
       // Write u_pMatrix
       var ratio = canvas.width / canvas.height;
-      var pMatrix = mat4.perspective(mat4.create(), 0.9, ratio, 0.1, 100);
+      var pMatrix = mat4.perspective(mat4.create(), 150, ratio, 0.1, 100);
       var pMatrixUniform = gl.getUniformLocation(gl.program, "u_pMatrix");
       gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix);
 
       // Write u_vMatrix
-      var vMatrix = mat4.lookAt(mat4.create(), [ 0, 0, 3 ], [ 0, 0, 0 ], [ 0, 1, 0 ]);
+      var vMatrix = mat4.lookAt(mat4.create(), [ 0, 0, -3 ], [ 0, 0, 0 ], [ 0, 1, 0 ]);
       var vMatrixUniform = gl.getUniformLocation(gl.program, "u_vMatrix");
       gl.uniformMatrix4fv(vMatrixUniform, false, vMatrix);
 
@@ -225,8 +225,8 @@
 
     <b>Light direction</b><br>
     <input type="range" id="x" min="-20" max="20" value="2" step="1">X<br>
-    <input type="range" id="y" min="-20" max="20" value="8" step="1">Y<br>
-    <input type="range" id="z" min="-20" max="20" value="8" step="1">Z<br>
+    <input type="range" id="y" min="-20" max="20" value="-8" step="1">Y<br>
+    <input type="range" id="z" min="-20" max="20" value="-8" step="1">Z<br>
 </body>
 
 </html>
