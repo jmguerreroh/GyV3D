@@ -99,7 +99,7 @@
       // Get the normal direction using the model Matrix
       var normalMatrix = mat4.clone(mvMatrix);
       var normalMatrixInvert = mat4.invert(mat4.create(), normalMatrix);
-      var normalMatrixInvertTranspose = mat4.invert(mat4.create(), normalMatrixInvert);
+      var normalMatrixInvertTranspose = mat4.transpose(mat4.create(), normalMatrixInvert);
       var normalUniformMatrix = gl.getUniformLocation(gl.program, "u_NormalMatrix");
       gl.uniformMatrix4fv(normalUniformMatrix, false, normalMatrixInvertTranspose);
 
