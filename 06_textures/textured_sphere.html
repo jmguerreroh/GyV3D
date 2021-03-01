@@ -15,7 +15,7 @@
         uniform mat4 u_mvMatrix;
 
         varying vec2 v_TexCoord;
-        varying highp vec4 v_Color;
+
 
         void main() {
             gl_Position = u_pMatrix * u_vMatrix * u_mvMatrix * a_Position;
@@ -25,7 +25,7 @@
 
     <script id="shaderFs" type="x-shader/x-fragment">
         precision highp float;
-        precision mediump float;
+
         uniform sampler2D u_Sampler;
         varying vec2 v_TexCoord;
 
@@ -94,8 +94,8 @@
                     vertexesAndTextures.push(RADIUS * y);
                     vertexesAndTextures.push(RADIUS * z);
 
-                    var u = 1 - (j / LONGITUDE_BANDS);
-                    var v = 1 - (i / LATITUDE_BANDS);
+                    var u = (j / LONGITUDE_BANDS);
+                    var v = (i / LATITUDE_BANDS);
 
                     vertexesAndTextures.push(u);
                     vertexesAndTextures.push(v);
@@ -136,16 +136,20 @@
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexes), gl.STATIC_DRAW);
         }
 
+		function toRadian(g){
+			return g*Math.PI/180;
+		}
+		
         function initProjection(gl, canvas) {
             // Write u_pMatrix
             var pMatrixUniform = gl.getUniformLocation(gl.program, "u_pMatrix");
             var ratio = canvas.width / canvas.height;
-            var pMatrix = mat4.perspective(mat4.create(), 150, ratio, 0.1, 100);
+            var pMatrix = mat4.perspective(mat4.create(), toRadian(60), ratio, 0.1, 100);
             gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix);
 
             // Write u_vMatrix
             var vMatrixUniform = gl.getUniformLocation(gl.program, "u_vMatrix");
-            var vMatrix = mat4.lookAt(mat4.create(), [0, 0, -3], [0, 0, 0], [0, 1, 0]);
+            var vMatrix = mat4.lookAt(mat4.create(), [0, 0, 3], [0, 0, 0], [0, 1, 0]);
             gl.uniformMatrix4fv(vMatrixUniform, false, vMatrix);
         }
 
