@@ -82,35 +82,36 @@
         function initVertexShader(gl) {
             // Vertexes and colors  (X, Y, Z, R, G, B)
             var vertexesAndColors = [
-                -0.5, -0.5, -0.5,   1, 1, 0,
-                0.5, -0.5, -0.5,    1, 1, 0,
-                0.5, 0.5, -0.5,     1, 1, 0,
-                -0.5, 0.5, -0.5,    1, 1, 0,
-
-                -0.5, -0.5, 0.5,    0, 0, 1,
-                0.5, -0.5, 0.5,     0, 0, 1,
-                0.5, 0.5, 0.5,      0, 0, 1,
-                -0.5, 0.5, 0.5,     0, 0, 1,
-
-                -0.5, -0.5, -0.5,   0, 1, 1,
-                -0.5, 0.5, -0.5,    0, 1, 1,
-                -0.5, 0.5, 0.5,     0, 1, 1,
-                -0.5, -0.5, 0.5,    0, 1, 1,
-
-                0.5, -0.5, -0.5,    1, 0, 0,
-                0.5, 0.5, -0.5,     1, 0, 0,
-                0.5, 0.5, 0.5,      1, 0, 0,
-                0.5, -0.5, 0.5,     1, 0, 0,
-
-                -0.5, -0.5, -0.5,   1, 0, 1,
-                -0.5, -0.5, 0.5,    1, 0, 1,
-                0.5, -0.5, 0.5,     1, 0, 1,
-                0.5, -0.5, -0.5,    1, 0, 1,
-
-                -0.5, 0.5, -0.5,    0, 1, 0,
-                -0.5, 0.5, 0.5,     0, 1, 0,
-                0.5, 0.5, 0.5,      0, 1, 0,
-                0.5, 0.5, -0.5,     0, 1, 0
+               	// Back - Yellow 
+                -0.5, -0.5, -0.5,   1, 1, 0, // v0 
+                0.5, -0.5, -0.5,    1, 1, 0, // v1 
+                0.5, 0.5, -0.5,     1, 1, 0, // v2 
+                -0.5, 0.5, -0.5,    1, 1, 0, // v3 
+				// Front - Blue 
+                -0.5, -0.5, 0.5,    0, 0, 1, // v4 
+                0.5, -0.5, 0.5,     0, 0, 1, // v5 
+                0.5, 0.5, 0.5,      0, 0, 1, // v6 
+                -0.5, 0.5, 0.5,     0, 0, 1, // v7 
+				// Left – Light Blue 
+                -0.5, -0.5, -0.5,   0, 1, 1, // v8 
+                -0.5, 0.5, -0.5,    0, 1, 1, // v9 
+                -0.5, 0.5, 0.5,     0, 1, 1, // v10 
+                -0.5, -0.5, 0.5,    0, 1, 1, // v11
+				// Right - Red 
+                0.5, -0.5, -0.5,    1, 0, 0, // v12 
+                0.5, 0.5, -0.5,     1, 0, 0, // v13 
+                0.5, 0.5, 0.5,      1, 0, 0, // v14 
+                0.5, -0.5, 0.5,     1, 0, 0, // v15 
+				// Bottom - Pink 
+                -0.5, -0.5, -0.5,   1, 0, 1, // v16
+                -0.5, -0.5, 0.5,    1, 0, 1, // v17 
+                0.5, -0.5, 0.5,     1, 0, 1, // v18 
+                0.5, -0.5, -0.5,    1, 0, 1, // v19 
+				// Top - Green 
+                -0.5, 0.5, -0.5,    0, 1, 0, // v20
+                -0.5, 0.5, 0.5,     0, 1, 0, // v21 
+                0.5, 0.5, 0.5,      0, 1, 0, // v22 
+                0.5, 0.5, -0.5,     0, 1, 0  // v23 
             ];
 
             // Indexes (for drawing squares using triangles)
@@ -150,17 +151,21 @@
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexes), gl.STATIC_DRAW);
         }
+		
+		function toRadian(g){
+			return g*Math.PI/180;
+		}
 
         function initProjection(gl, canvas) {
             // Write u_pMatrix
             var pMatrixUniform = gl.getUniformLocation(gl.program, "u_pMatrix");
             var ratio = canvas.width / canvas.height;
-            var pMatrix = mat4.perspective(mat4.create(), 150, ratio, 0.1, 100);
+            var pMatrix = mat4.perspective(mat4.create(), toRadian(60), ratio, 0.1, 100);
             gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix);
 
             // Write u_vMatrix
             var vMatrixUniform = gl.getUniformLocation(gl.program, "u_vMatrix");
-            var vMatrix = mat4.lookAt(mat4.create(), [0, 0, -3], [0, 0, 0], [0, 1, 0]);
+            var vMatrix = mat4.lookAt(mat4.create(), [0, 0, 3], [0, 0, 0], [0, 1, 0]);
             gl.uniformMatrix4fv(vMatrixUniform, false, vMatrix);
         }
 
