@@ -155,7 +155,7 @@
             // Write u_pMatrix
             var pMatrixUniform = gl.getUniformLocation(gl.program, "u_pMatrix");
             var ratio = canvas.width / canvas.height;
-            var pMatrix = mat4.ortho(mat4.create(), -ratio, ratio, -1.0, 1.0, 1.0, -1.0);
+            var pMatrix = mat4.ortho(mat4.create(), -ratio, ratio, -1.0, 1.0, -1.0, 1.0);
             gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix);
         }
 
