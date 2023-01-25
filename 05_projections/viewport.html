@@ -4,7 +4,7 @@
 <head>
     <title>WebGL projections: viewport change</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/3.4.2/gl-matrix-min.js"></script>
 
     <script id="shaderVs" type="x-shader/x-vertex">
         attribute vec4 a_Position;
@@ -27,6 +27,7 @@
     </script>
 
     <script>
+        const { mat2, mat2d, mat4, mat3, quat, quat2, vec2, vec3, vec4 } = glMatrix;
         var gl;
         var canvas;
         var count = 0.0;

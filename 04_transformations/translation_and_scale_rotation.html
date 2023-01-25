@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>WebGL transformations: scale</title>
+    <title>WebGL transformations: translation and scale</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/3.4.2/gl-matrix-min.js"></script>
 
@@ -55,9 +55,20 @@
             // Clear canvas
             gl.clear(gl.COLOR_BUFFER_BIT);
 
-            // Calculate new scale
+            // Calcualte new scale
             var scale = Math.abs(Math.sin(count));
-            var matrix = mat4.fromScaling(mat4.create(), [scale, scale, 0.0]);
+            var position = Math.sin(count);
+
+            var translated = mat4.fromTranslation(mat4.create(), [position, 0.0, 0.0]);
+            var scaled = mat4.fromScaling(mat4.create(), [scale, scale, 0.0]);
+            var rotateX = mat4.fromXRotation(mat4.create(), count);
+			var rotateY = mat4.fromYRotation(mat4.create(), count);
+			var rotateZ = mat4.fromZRotation(mat4.create(), count);
+            var translated_scaled = mat4.multiply(mat4.create(), translated, scaled);
+			var translated_scaled_X = mat4.multiply(mat4.create(), translated_scaled, rotateX);
+			var translated_scaled_XY = mat4.multiply(mat4.create(), translated_scaled_X, rotateY);
+			var translated_scaled_XYZ = mat4.multiply(mat4.create(), translated_scaled_XY, rotateZ);
+			var matrix = translated_scaled_XYZ;
 
             // Set uniform value (u_Matrix) in vertex shader
             var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_Matrix");

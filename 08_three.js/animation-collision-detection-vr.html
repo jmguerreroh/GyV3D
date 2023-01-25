@@ -6,9 +6,13 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"></script>
 
-<script>
+<script  type="module">
+   import { VRButton } from './js/VRButton.js';
+
    var stepX = 0.1;
    var stepY = 0.2;
+
+   init();
 
    function init() {
       var scene = new THREE.Scene();
@@ -18,13 +22,35 @@
       var camera = new THREE.PerspectiveCamera(90, sceneWidth / sceneHeight, 0.01, 100);
       camera.position.set(0, -10, 15); // Set the initial Camera Position.
       camera.lookAt(scene.position);
-      
+
       var renderer = new THREE.WebGLRenderer({
          antialias : true
       });
       renderer.shadowMap.enabled = true;
       renderer.setSize(sceneWidth, sceneHeight);
       document.body.appendChild(renderer.domElement);
+
+      // Enable VR
+      renderer.xr.enabled = true;
+      document.body.appendChild( VRButton.createButton( renderer ) );
+
+      const cameraGroup = new THREE.Group();
+      cameraGroup.position.set(0, -15, 5);  // Set the initial VR Headset Position.
+      cameraGroup.rotation.set(1, 0, 0);
+
+      //When user turn on the VR mode.
+      renderer.xr.addEventListener('sessionstart', function () {
+         scene.add(cameraGroup);
+         cameraGroup.add(camera);
+      });
+      
+      //When user turn off the VR mode.
+      renderer.xr.addEventListener('sessionend', function () {
+         scene.remove(cameraGroup);
+         cameraGroup.remove(camera);
+      });
+      
+
 
       var light = getLight();
       var leftBorder = getBorder("left", 1, 20, 2, -5, 0, 0);
@@ -118,7 +144,7 @@
 
    function checkCollision(sphere, borders) {
       var originPosition = sphere.position.clone();
-
+      
       const positionAttribute = sphere.geometry.getAttribute( 'position' );
       const localVertex = new THREE.Vector3();
       const globalVertex = new THREE.Vector3();
@@ -138,11 +164,11 @@
             }            
             break;
          }
-      }
+      }  
    }
 </script>
 </head>
 
-<body onload="init()"></body>
+<body></body>
 
 </html>
