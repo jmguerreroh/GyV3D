@@ -21,7 +21,7 @@
     </script>
 
     <script>
-        const { mat2, mat2d, mat4, mat3, quat, quat2, vec2, vec3, vec4 } = glMatrix;
+       
         var gl;
         var count = 0.0;
 
@@ -59,9 +59,9 @@
             var scale = Math.abs(Math.sin(count));
             var position = Math.sin(count);
 
-            var translated = mat4.fromTranslation(mat4.create(), [position, 0.0, 0.0]);
-            var scaled = mat4.fromScaling(mat4.create(), [scale, scale, 0.0]);
-            var matrix = mat4.multiply(mat4.create(), translated, scaled);
+            var translated = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [position, 0.0, 0.0]);
+            var scaled = glMatrix.mat4.fromScaling(glMatrix.mat4.create(), [scale, scale, 0.0]);
+            var matrix = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated, scaled);
 
             // Set uniform value (u_Matrix) in vertex shader
             var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_Matrix");

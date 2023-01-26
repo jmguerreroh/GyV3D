@@ -27,7 +27,7 @@
     </script>
 
     <script>
-        const { mat2, mat2d, mat4, mat3, quat, quat2, vec2, vec3, vec4 } = glMatrix;
+        
         var gl;
         var count = 0.0;
 
@@ -68,7 +68,7 @@
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             // Rotate
-            var mvMatrix = mat4.fromRotation(mat4.create(), count, [0.5, 0.5, 0.5]);
+            var mvMatrix = glMatrix.mat4.fromRotation(glMatrix.mat4.create(), count, [0.5, 0.5, 0.5]);
             var uMvMatrix = gl.getUniformLocation(gl.program, "u_mvMatrix");
             gl.uniformMatrix4fv(uMvMatrix, false, mvMatrix);
 
@@ -161,12 +161,12 @@
             // Write u_pMatrix
             var pMatrixUniform = gl.getUniformLocation(gl.program, "u_pMatrix");
             var ratio = canvas.width / canvas.height;
-            var pMatrix = mat4.perspective(mat4.create(), toRadian(60), ratio, 0.1, 100);
+            var pMatrix = glMatrix.mat4.perspective(glMatrix.mat4.create(), toRadian(60), ratio, 0.1, 100);
             gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix);
 
             // Write u_vMatrix
             var vMatrixUniform = gl.getUniformLocation(gl.program, "u_vMatrix");
-            var vMatrix = mat4.lookAt(mat4.create(), [0, 0, 3], [0, 0, 0], [0, 1, 0]);
+            var vMatrix = glMatrix.mat4.lookAt(glMatrix.mat4.create(), [0, 0, 3], [0, 0, 0], [0, 1, 0]);
             gl.uniformMatrix4fv(vMatrixUniform, false, vMatrix);
         }
 

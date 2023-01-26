@@ -21,7 +21,7 @@
     </script>
 
     <script>
-        const { mat2, mat2d, mat4, mat3, quat, quat2, vec2, vec3, vec4 } = glMatrix;
+        
         var gl;
         var count = 0.0;
 
@@ -57,7 +57,7 @@
 
             // Calculate position
             var position = Math.sin(count);
-            var matrix = mat4.fromTranslation(mat4.create(), [position, 0.0, 0.0]);
+            var matrix = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [position, 0.0, 0.0]);
 
             // Set uniform value (u_Matrix) in vertex shader
             var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_Matrix");

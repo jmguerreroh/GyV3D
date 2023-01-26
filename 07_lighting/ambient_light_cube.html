@@ -36,7 +36,7 @@
 </script>
 
 <script>
-	const { mat2, mat2d, mat4, mat3, quat, quat2, vec2, vec3, vec4 } = glMatrix;
+	
 	var count = 0.0;
 
 	function init() {
@@ -76,7 +76,7 @@
 	  initProjection(gl, canvas);
 
 	  // Rotate
-	  var mvMatrix = mat4.fromRotation(mat4.create(), count, [ 0.0, 1.0, 0.5 ]);
+	  var mvMatrix = glMatrix.mat4.fromRotation(glMatrix.mat4.create(), count, [ 0.0, 1.0, 0.5 ]);
 	  var uMvMatrix = gl.getUniformLocation(gl.program, "u_mvMatrix");
 	  gl.uniformMatrix4fv(uMvMatrix, false, mvMatrix);
 
@@ -151,12 +151,12 @@
 	function initProjection(gl, canvas) {
 	  // Write u_pMatrix
 	  var ratio = canvas.width / canvas.height;
-	  var pMatrix = mat4.perspective(mat4.create(), toRadian(60), ratio, 0.1, 100);
+	  var pMatrix = glMatrix.mat4.perspective(glMatrix.mat4.create(), toRadian(60), ratio, 0.1, 100);
 	  var pMatrixUniform = gl.getUniformLocation(gl.program, "u_pMatrix");
 	  gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix);
 
 	  // Write u_vMatrix
-	  var vMatrix = mat4.lookAt(mat4.create(), [ 0, 0, 3 ], [ 0, 0, 0 ], [ 0, 1, 0 ]);
+	  var vMatrix = glMatrix.mat4.lookAt(glMatrix.mat4.create(), [ 0, 0, 3 ], [ 0, 0, 0 ], [ 0, 1, 0 ]);
 	  var vMatrixUniform = gl.getUniformLocation(gl.program, "u_vMatrix");
 	  gl.uniformMatrix4fv(vMatrixUniform, false, vMatrix);
 
