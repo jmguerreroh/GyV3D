@@ -1,6 +1,6 @@
-# WebGL Examples
+# WebGL and Three.js Examples
 
-This project contains code examples for graphics generated using WebGL.
+This project contains code examples for graphics generated using WebGL and Three.js.
 
 ## About
 
