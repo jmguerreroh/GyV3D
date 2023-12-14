@@ -2,7 +2,12 @@
 <html>
 
 <head>
-<title>Three.js: Spot light</title>
+   <title>Three.js: Spot light</title>
+   <meta name="author" content="Jose Miguel Guerrero Hernandez">
+   <meta name="email" content="josemiguel.guerrero@urjc.es">
+   <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+   <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
+</head>
 
 <style>
 * {
@@ -14,6 +19,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js"></script>
 
 <script>
+   /**
+    * Three.js: Spot light
+    * 
+    * It is used to create a spot light.
+    */
+
+   /**
+    * This function is used to initialize the scene
+    */
    function init() {
       var scene = new THREE.Scene();
       var sceneWidth = window.innerWidth;
@@ -55,6 +69,11 @@
       gui.add(control, 'lightHelper', true, false).onChange(control.update);
    }
 
+   /**
+    * This function is used to add a light to the scene
+    * @param {THREE.Scene} scene
+    * @returns {THREE.CameraHelper}
+    */
    function addLight(scene) {
       var spotLight = new THREE.SpotLight();
       spotLight.position.set(-10, 10, 10);
@@ -75,6 +94,10 @@
       return helper;
    }
 
+   /**
+    * This function is used to add a sphere to the scene
+    * @param {THREE.Scene} scene
+    */
    function addSphere(scene) {
       var geometry = new THREE.SphereGeometry(1, 20, 20);
       var material = new THREE.MeshNormalMaterial();
@@ -84,6 +107,11 @@
       scene.add(mesh);
    }
 
+   /**
+    * This function is used to add a floor to the scene
+    * @param {THREE.Scene} scene
+    * @param {Function} render
+    */
    function addFloor(scene, render) {
       var geometry = new THREE.PlaneGeometry(10, 20);
       var texture = new THREE.TextureLoader().load("wood.png", render);
@@ -98,9 +126,7 @@
       scene.add(mesh);
    }
 </script>
-</head>
 
-<body onload="init()">
-</body>
+<body onload="init()"></body>
 
 </html>

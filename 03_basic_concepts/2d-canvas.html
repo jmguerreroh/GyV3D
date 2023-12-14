@@ -3,6 +3,10 @@
 
 <head>
     <title>Canvas in 2D</title>
+    <meta name="author" content="Jose Miguel Guerrero Hernandez">
+    <meta name="email" content="josemiguel.guerrero@urjc.es">
+    <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+    <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
 </head>
 
 <body onload="init()">
@@ -10,6 +14,15 @@
 </body>
 
 <script>
+    /**
+     * Canvas is a 2D drawing API
+     * 
+     * It is used to draw lines, shapes, text, images, etc.
+     */
+    
+    /**
+     * This function is used to initialize the scene
+     */
     function init() {
         var canvas = document.getElementById("myCanvas");
         var context = canvas.getContext("2d");

@@ -3,6 +3,10 @@
 
 <head>
     <title>Draw a point</title>
+    <meta name="author" content="Jose Miguel Guerrero Hernandez">
+    <meta name="email" content="josemiguel.guerrero@urjc.es">
+    <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+    <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
 </head>
 
 <body onload="init()">
@@ -24,6 +28,15 @@
 </script>
 
 <script>
+    /**
+     * Draw a point
+     * 
+     * It is used to draw a point with 3 attributes.
+     */
+
+    /**
+     * This function is used to initialize the scene
+     */
     function init() {
         // Get canvas object from the DOM
         var canvas = document.getElementById("myCanvas");
@@ -43,13 +56,11 @@
         var vs = document.getElementById('shaderVs').innerHTML;
         var fs = document.getElementById('shaderFs').innerHTML;
 		
-		
         if (!initShaders(gl, vs, fs)) {
             console.log('Failed to intialize shaders.');
             return;
         }
 
-		
 		var a_Position = gl.getAttribLocation(gl.program, "a_Position");
 		
 		// 1. Array values
@@ -61,10 +72,15 @@
 		
 		// Draw
 		gl.drawArrays(gl.POINTS, 0, 1);
-		
     }
 
-
+    /**
+     * This function is used to initialize the shaders
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} vs_source 
+     * @param {String} fs_source 
+     * @returns {Boolean}
+     */
     function initShaders(gl, vs_source, fs_source) {
         // Compile shaders
         var vertexShader = makeShader(gl, vs_source, gl.VERTEX_SHADER);
@@ -88,6 +104,14 @@
 
         return true;
     }
+    
+    /**
+     * This function is used to create a shader
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} src 
+     * @param {Number} type 
+     * @returns {WebGLShader}
+     */
     function makeShader(gl, src, type) {
         var shader = gl.createShader(type);
         gl.shaderSource(shader, src);

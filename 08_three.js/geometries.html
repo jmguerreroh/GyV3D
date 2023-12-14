@@ -2,11 +2,25 @@
 <html>
 
 <head>
-<title>Three.js: Geometries</title>
+   <title>Three.js: Geometries</title>
+   <meta name="author" content="Jose Miguel Guerrero Hernandez">
+   <meta name="email" content="josemiguel.guerrero@urjc.es">
+   <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+   <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
+</head>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"></script>
 
 <script>
+   /**
+    * Three.js: Geometries
+    * 
+    * It is used to create geometries.
+    */
+
+   /**
+    * This function is used to initialize the scene
+    */
    function init() {
       // Scene
       var scene = new THREE.Scene();
@@ -67,9 +81,7 @@
       renderer.render(scene, camera);
    }
 </script>
-</head>
 
-<body onload="init()">
-</body>
+<body onload="init()"></body>
 
 </html>

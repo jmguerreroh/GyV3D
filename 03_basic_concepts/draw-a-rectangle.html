@@ -3,6 +3,10 @@
 
 <head>
     <title>Draw a rectangle</title>
+    <meta name="author" content="Jose Miguel Guerrero Hernandez">
+    <meta name="email" content="josemiguel.guerrero@urjc.es">
+    <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+    <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
 </head>
 
 <body onload="init()">
@@ -25,6 +29,15 @@
 </script>
 
 <script>
+    /** 
+     * Draw a rectangle
+     * 
+     * It is used to draw a rectangle.
+     */
+
+    /**
+     * This function is used to initialize the scene
+     */
     function init() {
         // Get canvas object from the DOM
         var canvas = document.getElementById("myCanvas");
@@ -59,6 +72,11 @@
         gl.drawArrays(gl.TRIANGLES, 0, n);
     }
 
+    /**
+     * This function is used to initialize the vertex buffers
+     * @param {WebGLRenderingContext} gl  
+     * @returns {number} number of vertices
+     */
     function initVertexBuffers(gl) {
         // Vertices
         var dim = 2; 
@@ -100,6 +118,13 @@
         return vertices.length / dim;
     }
 
+    /**
+     * This function is used to initialize the shaders
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} vs_source 
+     * @param {String} fs_source 
+     * @returns {Boolean}
+     */
     function initShaders(gl, vs_source, fs_source) {
         // Compile shaders
         var vertexShader = makeShader(gl, vs_source, gl.VERTEX_SHADER);
@@ -124,6 +149,13 @@
         return true;
     }
 
+    /**
+     * This function is used to create a shader
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} src 
+     * @param {Number} type 
+     * @returns {WebGLShader}
+     */
     function makeShader(gl, src, type) {
         var shader = gl.createShader(type);
         gl.shaderSource(shader, src);

@@ -2,7 +2,12 @@
 <html>
 
 <head>
-<title>Three.js: Ambient light</title>
+   <title>Three.js: Ambient light</title>
+   <meta name="author" content="Jose Miguel Guerrero Hernandez">
+   <meta name="email" content="josemiguel.guerrero@urjc.es">
+   <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+   <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
+</head>
 
 <style>
 * {
@@ -13,6 +18,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"></script>
 
 <script>
+   /**
+    * Three.js: Ambient light
+    * 
+    * It is used to create an ambient light.
+    */
+
+   /**
+    * This function is used to initialize the scene
+    */
    function init() {
       var scene = new THREE.Scene();
       var sceneWidth = window.innerWidth;
@@ -36,11 +50,19 @@
       addFloor(scene, render);
    }
 
+   /**
+    * This function is used to add a light to the scene
+    * @param {THREE.Scene} scene
+    */
    function addLight(scene) {
       var light = new THREE.AmbientLight(0xFFFFFF);
       scene.add(light);
    }
 
+   /**
+    * This function is used to add a sphere to the scene
+    * @param {THREE.Scene} scene
+    */
    function addSphere(scene) {
       var geometry = new THREE.SphereGeometry(1, 20, 20);
       var material = new THREE.MeshNormalMaterial();
@@ -49,6 +71,11 @@
       scene.add(mesh);
    }
 
+   /**
+    * This function is used to add a floor to the scene
+    * @param {THREE.Scene} scene
+    * @param {Function} render
+    */
    function addFloor(scene, render) {
       var geometry = new THREE.PlaneGeometry(10, 20);
       var texture = new THREE.TextureLoader().load("wood.png", render);
@@ -62,9 +89,7 @@
       scene.add(mesh);
    }
 </script>
-</head>
 
-<body onload="init()">
-</body>
+<body onload="init()"></body>
 
 </html>

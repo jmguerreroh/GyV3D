@@ -3,134 +3,181 @@
 
 <head>
     <title>WebGL transformations: translation and scale</title>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/3.4.2/gl-matrix-min.js"></script>
-
-    <script id="shaderVs" type="x-shader/x-vertex">
-        attribute vec4 a_Position;
-        uniform mat4 u_Matrix;
-        void main() {
-            gl_Position = u_Matrix * a_Position;
-        }
-    </script>
-
-    <script id="shaderFs" type="x-shader/x-fragment">
-        void main() {
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-    </script>
-
-    <script>
-        
-        var gl;
-        var count = 0.0;
-
-        function init() {
-            // Get canvas object from the DOM
-            var canvas = document.getElementById("myCanvas");
-
-            // Init WebGL context
-            gl = canvas.getContext("webgl");
-            if (!gl) {
-                console.log("Failed to get the rendering context for WebGL");
-                return;
-            }
-
-            // Init shaders
-            var vs = document.getElementById('shaderVs').innerHTML;
-            var fs = document.getElementById('shaderFs').innerHTML;
-            initShaders(gl, vs, fs);
-
-            // Write the positions of vertices to a vertex shader
-            initVertexBuffers(gl);
-
-            // Set clear canvas color
-            gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
-            // Draw Scene
-            drawScene();
-        }
-
-        function drawScene() {
-            // Clear canvas
-            gl.clear(gl.COLOR_BUFFER_BIT);
-
-            // Calculate new scale
-            var scale = Math.abs(Math.sin(count));
-            var position = Math.sin(count);
-
-            var translated = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [position, 0.0, 0.0]);
-            var scaled = glMatrix.mat4.fromScaling(glMatrix.mat4.create(), [scale, scale, 0.0]);
-            var rotateX = glMatrix.mat4.fromXRotation(glMatrix.mat4.create(), count);
-			var rotateY = glMatrix.mat4.fromYRotation(glMatrix.mat4.create(), count);
-			var rotateZ = glMatrix.mat4.fromZRotation(glMatrix.mat4.create(), count);
-            var translated_scaled = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated, scaled);
-			var translated_scaled_X = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled, rotateX);
-			var translated_scaled_XY = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled_X, rotateY);
-			var translated_scaled_XYZ = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled_XY, rotateZ);
-			var matrix = translated_scaled_XYZ;
-
-            // Set uniform value (u_Matrix) in vertex shader
-            var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_Matrix");
-            gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
-
-            // Draw
-            gl.drawArrays(gl.TRIANGLES, 0, 3);
-
-            // Call drawScene again in the next browser repaint
-            count += 0.01;
-            requestAnimationFrame(drawScene);
-        }
-
-        function initVertexBuffers(gl) {
-            // Triangle
-            var vertices = [
-                0, 0.5, 0, // Vertice #1
-                -0.5, -0.5, 0, // Vertice #2
-                0.5, -0.5, 0 // Vertice #3
-            ];
-
-            // Create a buffer object
-            gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-            // Assign the vertices in buffer object to a_Position variable
-            var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
-            gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(a_Position);
-        }
-
-        function initShaders(gl, vs_source, fs_source) {
-            // Compile shaders
-            var vertexShader = makeShader(gl, vs_source, gl.VERTEX_SHADER);
-            var fragmentShader = makeShader(gl, fs_source, gl.FRAGMENT_SHADER);
-
-            // Create program
-            var glProgram = gl.createProgram();
-
-            // Attach and link shaders to the program
-            gl.attachShader(glProgram, vertexShader);
-            gl.attachShader(glProgram, fragmentShader);
-            gl.linkProgram(glProgram);
-
-            // Use program
-            gl.useProgram(glProgram);
-            gl.program = glProgram;
-        }
-
-        function makeShader(gl, src, type) {
-            var shader = gl.createShader(type);
-            gl.shaderSource(shader, src);
-            gl.compileShader(shader);
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                alert("Error compiling shader: " + gl.getShaderInfoLog(shader));
-                return;
-            }
-            return shader;
-        }
-    </script>
-
+    <meta name="author" content="Jose Miguel Guerrero Hernandez">
+    <meta name="email" content="josemiguel.guerrero@urjc.es">
+    <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+    <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
 </head>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/3.4.2/gl-matrix-min.js"></script>
+
+<script id="shaderVs" type="x-shader/x-vertex">
+    attribute vec4 a_Position;
+    uniform mat4 u_Matrix;
+    void main() {
+        gl_Position = u_Matrix * a_Position;
+    }
+</script>
+
+<script id="shaderFs" type="x-shader/x-fragment">
+    void main() {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    }
+</script>
+
+<script>
+    /**
+     * WebGL transformations: translation and scale
+     * 
+     * This example shows how to translate and scale a triangle using WebGL.
+     */
+
+    /**
+     * This function is used to initialize the scene
+     */
+    function init() {
+        // Variables
+        var rad_ang = 0.0;
+
+        // Get canvas object from the DOM
+        var canvas = document.getElementById("myCanvas");
+
+        // Init WebGL context
+        var gl = canvas.getContext("webgl");
+        if (!gl) {
+            console.log("Failed to get the rendering context for WebGL");
+            return;
+        }
+
+        // Init shaders
+        var vs = document.getElementById('shaderVs').innerHTML;
+        var fs = document.getElementById('shaderFs').innerHTML;
+        if (!initShaders(gl, vs, fs)) {
+            console.log('Failed to intialize shaders.');
+            return;
+        }
+
+        // Write the positions of vertices to a vertex shader
+        initVertexBuffers(gl);
+
+        // Set clear canvas color
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+        // Draw Scene
+        drawScene(gl, rad_ang);
+    }
+
+    /**
+     * This function is used to draw the scene and animate it
+     * @param {WebGLRenderingContext} gl 
+     * @param {Number} rad_ang 
+     */
+    function drawScene(gl, rad_ang) {
+        // Clear canvas
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        // Calculate new scale
+        var scale = Math.abs(Math.sin(rad_ang));
+        var position = Math.sin(rad_ang);
+
+        var translated = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [position, 0.0, 0.0]);
+        var scaled = glMatrix.mat4.fromScaling(glMatrix.mat4.create(), [scale, scale, 0.0]);
+        var rotateX = glMatrix.mat4.fromXRotation(glMatrix.mat4.create(), rad_ang);
+        var rotateY = glMatrix.mat4.fromYRotation(glMatrix.mat4.create(), rad_ang);
+        var rotateZ = glMatrix.mat4.fromZRotation(glMatrix.mat4.create(), rad_ang);
+        var translated_scaled = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated, scaled);
+        var translated_scaled_X = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled, rotateX);
+        var translated_scaled_XY = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled_X, rotateY);
+        var translated_scaled_XYZ = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled_XY, rotateZ);
+        var matrix = translated_scaled_XYZ;
+
+        // Set uniform value (u_Matrix) in vertex shader
+        var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_Matrix");
+        gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
+
+        // Draw
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+        // Increase angle
+        rad_ang += 0.01;
+
+        // Call drawScene again in the next browser repaint
+        requestAnimationFrame(function() {
+            drawScene(gl, rad_ang)
+        });
+    }
+
+    /**
+     * This function is used to initialize the vertex buffers
+     * @param {WebGLRenderingContext} gl 
+     */
+    function initVertexBuffers(gl) {
+        // Triangle
+        var vertices = [
+            0, 0.5, 0, // Vertice #1
+            -0.5, -0.5, 0, // Vertice #2
+            0.5, -0.5, 0 // Vertice #3
+        ];
+
+        // Create a buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+        // Assign the vertices in buffer object to a_Position variable
+        var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(a_Position);
+    }
+
+    /**
+     * This function is used to initialize the shaders
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} vs_source 
+     * @param {String} fs_source 
+     * @returns {Boolean}
+     */
+     function initShaders(gl, vs_source, fs_source) {
+        // Compile shaders
+        var vertexShader = makeShader(gl, vs_source, gl.VERTEX_SHADER);
+        var fragmentShader = makeShader(gl, fs_source, gl.FRAGMENT_SHADER);
+
+        // Create program
+        var glProgram = gl.createProgram();
+
+        // Attach and link shaders to the program
+        gl.attachShader(glProgram, vertexShader);
+        gl.attachShader(glProgram, fragmentShader);
+        gl.linkProgram(glProgram);
+        if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+            alert("Unable to initialize the shader program");
+            return false;
+        }
+
+        // Use program
+        gl.useProgram(glProgram);
+        gl.program = glProgram;
+
+        return true;
+    }
+
+    /**
+     * This function is used to create a shader
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} src 
+     * @param {Number} type 
+     * @returns {WebGLShader}
+     */
+    function makeShader(gl, src, type) {
+        var shader = gl.createShader(type);
+        gl.shaderSource(shader, src);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert("Error compiling shader: " + gl.getShaderInfoLog(shader));
+            return;
+        }
+        return shader;
+    }
+</script>
 
 <body onload="init()">
     <canvas id="myCanvas" width="640" height="480"></canvas>

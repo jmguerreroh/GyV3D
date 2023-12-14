@@ -3,229 +3,301 @@
 
 <head>
     <title>WebGL textures: sphere</title>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/3.4.2/gl-matrix-min.js"></script>
-
-    <script id="shaderVs" type="x-shader/x-vertex">
-        attribute vec4 a_Position;
-        attribute vec2 a_TexCoord;
-
-        uniform mat4 u_pMatrix;
-        uniform mat4 u_vMatrix;
-        uniform mat4 u_mvMatrix;
-
-        varying vec2 v_TexCoord;
-
-
-        void main() {
-            gl_Position = u_pMatrix * u_vMatrix * u_mvMatrix * a_Position;
-            v_TexCoord = a_TexCoord;
-        }
-    </script>
-
-    <script id="shaderFs" type="x-shader/x-fragment">
-        precision highp float;
-
-        uniform sampler2D u_Sampler;
-        varying vec2 v_TexCoord;
-
-        void main(void) {
-            gl_FragColor = texture2D(u_Sampler, v_TexCoord);
-        }
-    </script>
-
-    <script>
-        
-        var gl;
-        var count = 0.0;
-        const LATITUDE_BANDS = 30;
-        const LONGITUDE_BANDS = 30;
-        const RADIUS = 1;
-
-        function init() {
-            // Get canvas object from the DOM
-            var canvas = document.getElementById("myCanvas");
-
-            // Init WebGL context
-            gl = canvas.getContext("webgl");
-            if (!gl) {
-                console.log("Failed to get the rendering context for WebGL");
-                return;
-            }
-
-            // Init shaders
-            var vs = document.getElementById('shaderVs').innerHTML;
-            var fs = document.getElementById('shaderFs').innerHTML;
-            initShaders(gl, vs, fs);
-
-            // Init vertex shader
-            initVertexShader(gl);
-
-            // Init projection matrix
-            initProjection(gl, canvas);
-
-            // Set clear canvas color
-            gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
-            // Hidden surface removal
-            gl.enable(gl.DEPTH_TEST);
-
-            // Init textures
-            initTexturesAndDraw(gl);
-        }
-
-        function initVertexShader(gl) {
-            // Vertexes and textures coordinates
-            var vertexesAndTextures = [];
-            for (var i = 0; i <= LATITUDE_BANDS; i++) {
-                var theta = i * Math.PI / LATITUDE_BANDS;
-                var sinTheta = Math.sin(theta);
-                var cosTheta = Math.cos(theta);
-
-                for (var j = 0; j <= LONGITUDE_BANDS; j++) {
-                    var phi = j * 2 * Math.PI / LONGITUDE_BANDS;
-                    var sinPhi = Math.sin(phi);
-                    var cosPhi = Math.cos(phi);
-
-                    var x = sinPhi * sinTheta;
-                    var y = cosTheta;
-                    var z = cosPhi * sinTheta;
-
-                    vertexesAndTextures.push(RADIUS * x);
-                    vertexesAndTextures.push(RADIUS * y);
-                    vertexesAndTextures.push(RADIUS * z);
-
-                    var u = (j / LONGITUDE_BANDS);
-                    var v = (i / LATITUDE_BANDS);
-
-                    vertexesAndTextures.push(u);
-                    vertexesAndTextures.push(v);
-                }
-            }
-
-            // Indexes
-            var indexes = [];
-            for (var i = 0; i < LATITUDE_BANDS; i++) {
-                for (var j = 0; j < LONGITUDE_BANDS; j++) {
-                    var first = i * (LONGITUDE_BANDS + 1) + j;
-                    var second = first + LONGITUDE_BANDS + 1;
-
-                    indexes.push(first);
-                    indexes.push(second);
-                    indexes.push(first + 1);
-
-                    indexes.push(second + 1);
-                    indexes.push(first + 1);
-                    indexes.push(second);
-                }
-            }
-
-            // Write a_Position and a_TexCoord using gl.ARRAY_BUFFER
-            gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexesAndTextures), gl.STATIC_DRAW);
-
-            var vertexPositionAttribute = gl.getAttribLocation(gl.program, "a_Position");
-            gl.enableVertexAttribArray(vertexPositionAttribute);
-            gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 4 * (3 + 2), 0);
-
-            var vertexColorAttribute = gl.getAttribLocation(gl.program, "a_TexCoord");
-            gl.enableVertexAttribArray(vertexColorAttribute);
-            gl.vertexAttribPointer(vertexColorAttribute, 2, gl.FLOAT, false, 4 * (3 + 2), 4 * 3);
-
-            // Write indexes in gl.ELEMENT_ARRAY_BUFFER
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexes), gl.STATIC_DRAW);
-        }
-
-		function toRadian(g){
-			return g*Math.PI/180;
-		}
-		
-        function initProjection(gl, canvas) {
-            // Write u_pMatrix
-            var pMatrixUniform = gl.getUniformLocation(gl.program, "u_pMatrix");
-            var ratio = canvas.width / canvas.height;
-            var pMatrix = glMatrix.mat4.perspective(glMatrix.mat4.create(), toRadian(60), ratio, 0.1, 100);
-            gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix);
-
-            // Write u_vMatrix
-            var vMatrixUniform = gl.getUniformLocation(gl.program, "u_vMatrix");
-            var vMatrix = glMatrix.mat4.lookAt(glMatrix.mat4.create(), [0, 0, 3], [0, 0, 0], [0, 1, 0]);
-            gl.uniformMatrix4fv(vMatrixUniform, false, vMatrix);
-        }
-
-        function initTexturesAndDraw(gl) {
-            var image = new Image();
-            image.src = 'earth.png';
-            image.onload = function () {
-                loadTexture(gl, "u_Sampler", image, 0, false);
-                drawScene();
-            };
-        }
-
-        function loadTexture(gl, samplerUniform, image, unitNumber, flip) {
-            // Flip the image's y axis
-            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flip);
-
-            // Activate and configure texture
-            gl.activeTexture(gl.TEXTURE0 + unitNumber);
-            gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
-            // Set texture to the sampler
-            var fragmentSamplerUniform = gl.getUniformLocation(gl.program, samplerUniform);
-            gl.uniform1i(fragmentSamplerUniform, unitNumber);
-        }
-
-        function drawScene() {
-            // Clear
-            gl.clear(gl.COLOR_BUFFER_BIT);
-
-            // Rotate
-            var mvMatrix = glMatrix.mat4.fromRotation(glMatrix.mat4.create(), count, [0, 0.5, 0]);
-            var uMvMatrix = gl.getUniformLocation(gl.program, "u_mvMatrix");
-            gl.uniformMatrix4fv(uMvMatrix, false, mvMatrix);
-
-            // Draw
-            gl.drawElements(gl.TRIANGLES, LATITUDE_BANDS * LONGITUDE_BANDS * 3 * 2, gl.UNSIGNED_SHORT, 0);
-
-            // Call drawScene again in the next browser repaint
-            count += 0.01;
-            requestAnimationFrame(drawScene);
-        }
-
-        function initShaders(gl, vs_source, fs_source) {
-            // Compile shaders
-            var vertexShader = makeShader(gl, vs_source, gl.VERTEX_SHADER);
-            var fragmentShader = makeShader(gl, fs_source, gl.FRAGMENT_SHADER);
-
-            // Create program
-            var glProgram = gl.createProgram();
-
-            // Attach and link shaders to the program
-            gl.attachShader(glProgram, vertexShader);
-            gl.attachShader(glProgram, fragmentShader);
-            gl.linkProgram(glProgram);
-
-            // Use program
-            gl.useProgram(glProgram);
-            gl.program = glProgram;
-        }
-
-        function makeShader(gl, src, type) {
-            var shader = gl.createShader(type);
-            gl.shaderSource(shader, src);
-            gl.compileShader(shader);
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                alert("Error compiling shader: " + gl.getShaderInfoLog(shader));
-                return;
-            }
-            return shader;
-        }
-    </script>
-
+    <meta name="author" content="Jose Miguel Guerrero Hernandez">
+    <meta name="email" content="josemiguel.guerrero@urjc.es">
+    <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+    <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
 </head>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/3.4.2/gl-matrix-min.js"></script>
+
+<script id="shaderVs" type="x-shader/x-vertex">
+    attribute vec4 a_Position;
+    attribute vec2 a_TexCoord;
+
+    uniform mat4 u_pMatrix;
+    uniform mat4 u_vMatrix;
+    uniform mat4 u_mvMatrix;
+
+    varying vec2 v_TexCoord;
+
+
+    void main() {
+        gl_Position = u_pMatrix * u_vMatrix * u_mvMatrix * a_Position;
+        v_TexCoord = a_TexCoord;
+    }
+</script>
+
+<script id="shaderFs" type="x-shader/x-fragment">
+    precision highp float;
+
+    uniform sampler2D u_Sampler;
+    varying vec2 v_TexCoord;
+
+    void main(void) {
+        gl_FragColor = texture2D(u_Sampler, v_TexCoord);
+    }
+</script>
+
+<script>
+    /** 
+     * WebGL textures: sphere
+     * 
+     * This example shows how to draw a sphere using WebGL.
+     */
+    
+    // Constants and variables for the sphere (latitude and longitude bands) and radius
+    const LATITUDE_BANDS = 30;
+    const LONGITUDE_BANDS = 30;
+    const RADIUS = 1;
+
+    /**
+     * This function is used to initialize the scene
+     */
+    function init() {
+        // Variables
+        var rad_ang = 0.0;
+
+        // Get canvas object from the DOM
+        var canvas = document.getElementById("myCanvas");
+
+        // Init WebGL context
+        gl = canvas.getContext("webgl");
+        if (!gl) {
+            console.log("Failed to get the rendering context for WebGL");
+            return;
+        }
+
+        // Init shaders
+        var vs = document.getElementById('shaderVs').innerHTML;
+        var fs = document.getElementById('shaderFs').innerHTML;
+        if (!initShaders(gl, vs, fs)) {
+            console.log('Failed to intialize shaders.');
+            return;
+        }
+
+        // Init vertex shader
+        initVertexBuffers(gl);
+
+        // Init projection matrix
+        initProjection(gl, canvas);
+
+        // Set clear canvas color
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+        // Hidden surface removal
+        gl.enable(gl.DEPTH_TEST);
+
+        // Init textures
+        initTexturesAndDraw(gl, rad_ang);
+    }
+
+    /**
+     * This function is used to initialize the vertex buffers
+     * @param {WebGLRenderingContext} gl 
+     */
+    function initVertexBuffers(gl) {
+        // Vertexes and textures coordinates
+        var vertexesAndTextures = [];
+        for (var i = 0; i <= LATITUDE_BANDS; i++) {
+            var theta = i * Math.PI / LATITUDE_BANDS;
+            var sinTheta = Math.sin(theta);
+            var cosTheta = Math.cos(theta);
+
+            for (var j = 0; j <= LONGITUDE_BANDS; j++) {
+                var phi = j * 2 * Math.PI / LONGITUDE_BANDS;
+                var sinPhi = Math.sin(phi);
+                var cosPhi = Math.cos(phi);
+
+                var x = sinPhi * sinTheta;
+                var y = cosTheta;
+                var z = cosPhi * sinTheta;
+
+                vertexesAndTextures.push(RADIUS * x);
+                vertexesAndTextures.push(RADIUS * y);
+                vertexesAndTextures.push(RADIUS * z);
+
+                var u = (j / LONGITUDE_BANDS);
+                var v = (i / LATITUDE_BANDS);
+
+                vertexesAndTextures.push(u);
+                vertexesAndTextures.push(v);
+            }
+        }
+
+        // Indexes
+        var indexes = [];
+        for (var i = 0; i < LATITUDE_BANDS; i++) {
+            for (var j = 0; j < LONGITUDE_BANDS; j++) {
+                var first = i * (LONGITUDE_BANDS + 1) + j;
+                var second = first + LONGITUDE_BANDS + 1;
+
+                indexes.push(first);
+                indexes.push(second);
+                indexes.push(first + 1);
+
+                indexes.push(second + 1);
+                indexes.push(first + 1);
+                indexes.push(second);
+            }
+        }
+
+        // Write a_Position and a_TexCoord using gl.ARRAY_BUFFER
+        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexesAndTextures), gl.STATIC_DRAW);
+
+        var vertexPositionAttribute = gl.getAttribLocation(gl.program, "a_Position");
+        gl.enableVertexAttribArray(vertexPositionAttribute);
+        gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 4 * (3 + 2), 0);
+
+        var vertexColorAttribute = gl.getAttribLocation(gl.program, "a_TexCoord");
+        gl.enableVertexAttribArray(vertexColorAttribute);
+        gl.vertexAttribPointer(vertexColorAttribute, 2, gl.FLOAT, false, 4 * (3 + 2), 4 * 3);
+
+        // Write indexes in gl.ELEMENT_ARRAY_BUFFER
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexes), gl.STATIC_DRAW);
+    }
+    
+    /**
+     * This function is used to convert degrees to radians
+     * @param {Number} d 
+	 * @returns {Number}
+     */
+    function toRadian(d){
+        return d*Math.PI/180;
+    }
+    
+    /**
+     * This function is used to initialize the projection matrix
+     * @param {WebGLRenderingContext} gl 
+     * @param {HTMLCanvasElement} canvas 
+     */
+    function initProjection(gl, canvas) {
+        // Write u_pMatrix
+        var pMatrixUniform = gl.getUniformLocation(gl.program, "u_pMatrix");
+        var ratio = canvas.width / canvas.height;
+        var pMatrix = glMatrix.mat4.perspective(glMatrix.mat4.create(), toRadian(60), ratio, 0.1, 100);
+        gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix);
+
+        // Write u_vMatrix
+        var vMatrixUniform = gl.getUniformLocation(gl.program, "u_vMatrix");
+        var vMatrix = glMatrix.mat4.lookAt(glMatrix.mat4.create(), [0, 0, 3], [0, 0, 0], [0, 1, 0]);
+        gl.uniformMatrix4fv(vMatrixUniform, false, vMatrix);
+    }
+
+    /**
+     * This function is used to initialize textures and draw the scene
+     * @param {WebGLRenderingContext} gl 
+     * @param {Number} rad_ang 
+     */
+    function initTexturesAndDraw(gl, rad_ang) {
+        var image = new Image();
+        image.src = 'earth.png';
+        image.onload = function () {
+            loadTexture(gl, "u_Sampler", image, 0, false);
+            drawScene(gl, rad_ang);
+        };
+    }
+
+    /**
+     * This function is used to load a texture
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} samplerUniform 
+     * @param {Image} image 
+     * @param {Number} unitNumber 
+     * @param {Boolean} flip 
+     */
+    function loadTexture(gl, samplerUniform, image, unitNumber, flip) {
+        // Flip the image's y axis
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flip);
+
+        // Activate and configure texture
+        gl.activeTexture(gl.TEXTURE0 + unitNumber);
+        gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+        // Set texture to the sampler
+        var fragmentSamplerUniform = gl.getUniformLocation(gl.program, samplerUniform);
+        gl.uniform1i(fragmentSamplerUniform, unitNumber);
+    }
+
+    /**
+     * This function is used to draw the scene and animate it
+     * @param {WebGLRenderingContext} gl 
+     * @param {Number} rad_ang 
+     */
+    function drawScene(gl, rad_ang) {
+        // Clear
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        // Rotate
+        var mvMatrix = glMatrix.mat4.fromRotation(glMatrix.mat4.create(), rad_ang, [0, 0.5, 0]);
+        var uMvMatrix = gl.getUniformLocation(gl.program, "u_mvMatrix");
+        gl.uniformMatrix4fv(uMvMatrix, false, mvMatrix);
+
+        // Draw
+        gl.drawElements(gl.TRIANGLES, LATITUDE_BANDS * LONGITUDE_BANDS * 3 * 2, gl.UNSIGNED_SHORT, 0);
+
+        // Increase angle
+        rad_ang += 0.01;
+
+        // Call drawScene again in the next browser repaint
+        requestAnimationFrame(function() {
+			drawScene(gl, rad_ang)
+		});
+    }
+
+    /**
+     * This function is used to initialize the shaders
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} vs_source 
+     * @param {String} fs_source 
+     * @returns {Boolean}
+     */
+     function initShaders(gl, vs_source, fs_source) {
+        // Compile shaders
+        var vertexShader = makeShader(gl, vs_source, gl.VERTEX_SHADER);
+        var fragmentShader = makeShader(gl, fs_source, gl.FRAGMENT_SHADER);
+
+        // Create program
+        var glProgram = gl.createProgram();
+
+        // Attach and link shaders to the program
+        gl.attachShader(glProgram, vertexShader);
+        gl.attachShader(glProgram, fragmentShader);
+        gl.linkProgram(glProgram);
+        if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+            alert("Unable to initialize the shader program");
+            return false;
+        }
+
+        // Use program
+        gl.useProgram(glProgram);
+        gl.program = glProgram;
+
+        return true;
+    }
+
+    /**
+     * This function is used to create a shader
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} src 
+     * @param {Number} type 
+     * @returns {WebGLShader}
+     */
+    function makeShader(gl, src, type) {
+        var shader = gl.createShader(type);
+        gl.shaderSource(shader, src);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert("Error compiling shader: " + gl.getShaderInfoLog(shader));
+            return;
+        }
+        return shader;
+    }
+</script>
 
 <body onload="init()">
     <canvas id="myCanvas" width="640" height="480"></canvas>

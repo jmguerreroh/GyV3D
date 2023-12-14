@@ -1,3 +1,6 @@
+    /**
+     * This function is used to initialize the scene
+     */
     function init() {
         // Get canvas object from the DOM
         var canvas = document.getElementById("myCanvas");
@@ -31,6 +34,13 @@
 
     }
 
+    /**
+     * This function is used to initialize the shaders
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} vs_source 
+     * @param {String} fs_source 
+     * @returns {Boolean}
+     */
     function initShaders(gl, vs_source, fs_source) {
         // Compile shaders
         var vertexShader = makeShader(gl, vs_source, gl.VERTEX_SHADER);
@@ -55,6 +65,13 @@
         return true;
     }
 
+    /**
+     * This function is used to create a shader
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} src 
+     * @param {Number} type 
+     * @returns {WebGLShader}
+     */
     function makeShader(gl, src, type) {
         var shader = gl.createShader(type);
         gl.shaderSource(shader, src);

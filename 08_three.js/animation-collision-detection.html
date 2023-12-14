@@ -2,14 +2,29 @@
 <html>
 
 <head>
-<title>Three.js: Collision detection</title>
+   <title>Three.js: Collision detection</title>
+   <meta name="author" content="Jose Miguel Guerrero Hernandez">
+   <meta name="email" content="josemiguel.guerrero@urjc.es">
+   <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+   <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
+</head>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"></script>
 
 <script>
+   /**
+    * Three.js: Collision detection
+    * 
+    * This example shows how to detect collision between a sphere and a cube.
+    */
+   
+   // Global variables
    var stepX = 0.1;
    var stepY = 0.2;
 
+   /**
+    * This function is used to initialize the scene
+    */
    function init() {
       var scene = new THREE.Scene();
       var sceneWidth = window.innerWidth - 20;
@@ -47,6 +62,14 @@
       animate(sphere, borders, renderer, scene, camera);
    }
 
+   /**
+    * This function is used to animate the scene
+    * @param {THREE.Mesh} sphere 
+    * @param {Array} borders 
+    * @param {THREE.WebGLRenderer} renderer 
+    * @param {THREE.Scene} scene 
+    * @param {THREE.Camera} camera 
+    */
    function animate(sphere, borders, renderer, scene, camera) {
       checkCollision(sphere, borders);
       
@@ -60,6 +83,10 @@
       });
    }
 
+   /**
+    * This function is used to get a light
+    * @returns {THREE.Light}
+    */
    function getLight() {
       var light = new THREE.DirectionalLight();
       light.position.set(4, 4, 4);
@@ -75,6 +102,10 @@
       return light;
    }
 
+   /**
+    * This function is used to get a sphere
+    * @returns {THREE.Mesh}
+    */
    function getSphere() {
       var geometry = new THREE.SphereGeometry(1, 20, 20);
       var material = new THREE.MeshNormalMaterial();
@@ -86,6 +117,10 @@
       return mesh;
    }
 
+   /**
+    * This function is used to get a floor
+    * @returns {THREE.Mesh}
+    */
    function getFloor() {
       var geometry = new THREE.PlaneGeometry(10, 20);
       var mesh = new THREE.Mesh(geometry, getWoodMaterial());
@@ -94,6 +129,17 @@
       return mesh;
    }
 
+   /**
+    * This function is used to get a border
+    * @param {String} name 
+    * @param {Number} x 
+    * @param {Number} y 
+    * @param {Number} z 
+    * @param {Number} posX 
+    * @param {Number} posY 
+    * @param {Number} posZ 
+    * @returns {THREE.Mesh}
+    */
    function getBorder(name, x, y, z, posX, posY, posZ) {
       var geometry = new THREE.BoxGeometry(x, y, z);
       var mesh = new THREE.Mesh(geometry, getWoodMaterial());
@@ -104,6 +150,10 @@
       return mesh;
    }
 
+   /**
+    * This function is used to get a wood material
+    * @returns {THREE.MeshPhysicalMaterial}
+    */
    function getWoodMaterial() {
       var texture = new THREE.TextureLoader().load("wood.png");
       var material = new THREE.MeshPhysicalMaterial({
@@ -116,6 +166,11 @@
       return material;
    }
 
+   /**
+    * This function is used to check collision
+    * @param {THREE.Mesh} sphere 
+    * @param {Array} borders 
+    */
    function checkCollision(sphere, borders) {
       var originPosition = sphere.position.clone();
 
@@ -141,7 +196,6 @@
       }
    }
 </script>
-</head>
 
 <body onload="init()"></body>
 

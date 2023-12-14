@@ -2,11 +2,25 @@
 <html>
 
 <head>
-<title>Three.js: Textures (Phong material)</title>
+   <title>Three.js: Textures (Phong material)</title>
+   <meta name="author" content="Jose Miguel Guerrero Hernandez">
+   <meta name="email" content="josemiguel.guerrero@urjc.es">
+   <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+   <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
+</head>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"></script>
 
 <script>
+   /**
+    * Three.js: Textures (Phong material)
+    *
+    * It is used to apply a texture to a cube.
+    */
+
+   /**
+    * This function is used to initialize the scene
+    */
    function init() {
       var scene = new THREE.Scene();
       var sceneWidth = window.innerWidth;
@@ -39,6 +53,13 @@
       animate(mesh, renderer, scene, camera);
    }
 
+   /**
+    * This function is used to animate the scene
+    * @param {THREE.Mesh} mesh
+    * @param {THREE.WebGLRenderer} renderer
+    * @param {THREE.Scene} scene
+    * @param {THREE.Camera} camera
+    */
    function animate(mesh, renderer, scene, camera) {
       mesh.rotation.x += 0.01;
       mesh.rotation.y += 0.02;
@@ -50,9 +71,7 @@
       });
    }
 </script>
-</head>
 
-<body onload="init()">
-</body>
+<body onload="init()"></body>
 
 </html>

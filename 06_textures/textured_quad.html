@@ -3,6 +3,10 @@
 
 <head>
     <title>WebGL textures: quad</title>
+    <meta name="author" content="Jose Miguel Guerrero Hernandez">
+    <meta name="email" content="josemiguel.guerrero@urjc.es">
+    <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+    <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
 </head>
 
 <script id="shaderVs" type="x-shader/x-vertex">
@@ -25,6 +29,15 @@
 </script>
 
 <script>
+    /** 
+     * WebGL textures: quad
+     * 
+     * This example shows how to draw a quad using WebGL.
+     */
+
+    /**
+     * This function is used to initialize the scene
+     */
     function init() {
         // Get canvas object from the DOM
         var canvas = document.getElementById("myCanvas");
@@ -54,6 +67,10 @@
         initTexturesAndDraw(gl);
     }
 
+    /**
+     * This function is used to initialize textures and draw the scene
+     * @param {WebGLRenderingContext} gl 
+     */
     function initTexturesAndDraw(gl) {
         var image = new Image();
         image.src = 'sky.jpg';
@@ -63,6 +80,14 @@
         };
     }
 
+    /**
+     * This function is used to load a texture
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} samplerUniform 
+     * @param {Image} image 
+     * @param {Number} unitNumber 
+     * @param {Boolean} flip 
+     */
     function loadTexture(gl, samplerUniform, image, unitNumber, flip) {
         // Flip the image's y axis
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flip);
@@ -78,12 +103,20 @@
         gl.uniform1i(fragmentSamplerUniform, unitNumber);
     }
 
+    /**
+     * This function is used to draw the scene
+     * @param {WebGLRenderingContext} gl 
+     */
     function drawScene(gl) {
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 
+    /**
+     * This function is used to initialize the vertex buffers
+     * @param {WebGLRenderingContext} gl 
+     */
     function initVertexBuffers(gl) {
         // Vertices (x, y) and texture coordinates (s, t)
         var verticesAndTextures = [
@@ -105,6 +138,12 @@
         gl.vertexAttribPointer(vertexTextureAttribute, 2, gl.FLOAT, false, 4 * 4, 4 * 2);
     }
 
+    /**
+     * This function is used to initialize shaders
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} vs_source 
+     * @param {String} fs_source 
+     */
     function initShaders(gl, vs_source, fs_source) {
         // Compile shaders
         var vertexShader = makeShader(gl, vs_source, gl.VERTEX_SHADER);
@@ -129,6 +168,13 @@
         return true;
     }
 
+    /**
+     * This function is used to create a shader
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} src 
+     * @param {Number} type 
+     * @returns {WebGLShader}
+     */
     function makeShader(gl, src, type) {
         var shader = gl.createShader(type);
         gl.shaderSource(shader, src);

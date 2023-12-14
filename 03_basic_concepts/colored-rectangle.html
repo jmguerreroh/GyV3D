@@ -3,6 +3,10 @@
 
 <head>
     <title>Draw a colored rectangle</title>
+    <meta name="author" content="Jose Miguel Guerrero Hernandez">
+    <meta name="email" content="josemiguel.guerrero@urjc.es">
+    <!-- Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es> -->
+    <!-- License: Creative Commons Attribution-ShareAlike 4.0 International-->
 </head>
 
 <body onload="init()">
@@ -27,6 +31,15 @@
 </script>
 
 <script>
+    /**
+     * Draw a colored rectangle
+     * 
+     * It is used to draw a colored rectangle.
+     */
+
+    /**
+     * This function is used to initialize the scene
+     */
     function init() {
         // Get canvas object from the DOM
         var canvas = document.getElementById("myCanvas");
@@ -61,6 +74,10 @@
         gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_SHORT, 0);
     }
 
+    /**
+     * This function is used to initialize the vertex buffers
+     * @param {WebGLRenderingContext} gl 
+     */
     function initBuffers(gl) {
         // Vertices
         var dim = 3;
@@ -69,6 +86,7 @@
             0.6, 0.6, 0.0, // 2
             0.6, -0.6, 0.0, // 3
         ]);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
         var vertexPositionAttribute = gl.getAttribLocation(gl.program, "a_Position");
@@ -82,6 +100,7 @@
             0.0, 0.0, 1.0,
             1.0, 0.0, 1.0,
         ]);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
         gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
         var vertexColorAttribute = gl.getAttribLocation(gl.program, "a_Color");
@@ -93,6 +112,7 @@
             0, 1, 2,
             0, 2, 3,
         ]);
+        
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 
@@ -100,6 +120,13 @@
         return indices.length;
     }
 
+    /**
+     * This function is used to initialize the shaders
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} vs_source 
+     * @param {String} fs_source 
+     * @returns {Boolean}
+     */
     function initShaders(gl, vs_source, fs_source) {
         // Compile shaders
         var vertexShader = makeShader(gl, vs_source, gl.VERTEX_SHADER);
@@ -124,6 +151,13 @@
         return true;
     }
 
+    /**
+     * This function is used to create a shader
+     * @param {WebGLRenderingContext} gl 
+     * @param {String} src 
+     * @param {Number} type 
+     * @returns {WebGLShader}
+     */
     function makeShader(gl, src, type) {
         var shader = gl.createShader(type);
         gl.shaderSource(shader, src);
