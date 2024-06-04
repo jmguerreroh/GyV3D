@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2023 Jose Miguel Guerrero Hernandez <josemiguel.guerrero@urjc.es>
- * License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+ * License: MIT  (CC BY-SA 4.0)
  * http://creativecommons.org/licenses/by-sa/4.0/
  * /
 
