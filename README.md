@@ -4,7 +4,8 @@ This project contains code examples for graphics generated using WebGL and Three
 
 ## About
 
-This is a project made by [José Miguel Guerrero], Associate Professor at [Universidad Rey Juan Carlos].
+This project was developed by [José Miguel Guerrero], an Associate Professor at [Universidad Rey Juan Carlos].
+
 Copyright &copy; 2024.
 
 [![Twitter](https://img.shields.io/badge/follow-@jm__guerrero-green.svg)](https://twitter.com/jm__guerrero)
